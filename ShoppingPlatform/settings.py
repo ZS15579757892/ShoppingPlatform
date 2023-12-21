@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'order',
     'rest_framework',
     'corsheaders',
-    'rest_framework_simplejwt'
+    'rest_framework_simplejwt',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -148,6 +149,10 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BaseAuthentication',
     ),
+    # 配置DRF过滤器
+    'DEFAULT_FILTER_BACKENDS': (
+            'django_filters.rest_framework.DjangoFilterBackend',
+    ),
 }
 
 
@@ -179,3 +184,8 @@ SIMPLE_JWT = {
 AUTHENTICATION_BACKENDS = [
     'common.authenticate.MyBackend'
 ]
+
+# 指定文件上传路径
+MEDIA_ROOT = BASE_DIR / 'file/image'
+
+MEDIA_URL = 'file/image/'

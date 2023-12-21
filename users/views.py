@@ -1,12 +1,20 @@
+from django.http import FileResponse
 from django.shortcuts import render
-from rest_framework import status
+import os
+from rest_framework import status, mixins
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import AllowAny
+from rest_framework.viewsets import GenericViewSet
+from rest_framework.permissions import IsAuthenticated
 
-from users.models import User
+from ShoppingPlatform.settings import MEDIA_ROOT
+from users.models import User, Addr
+from . import permissions
+from .permissions import AddrPermission
+from .serializers import UserSerializer, AddrSerializer
 
 import re
 
@@ -14,8 +22,8 @@ import re
 # Create your views here.
 class RegisterView(APIView):
     """注册"""
-    permission_classes = [AllowAny]
-    authentication_classes = []
+    # permission_classes = [AllowAny]
+    # authentication_classes = []
 
     def post(self, request):
         # 1.接受用户参数
@@ -64,3 +72,63 @@ class LoginView(TokenObtainPairView):
         result['token'] = result.pop('access')
 
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
+
+
+class UserView(GenericViewSet, mixins.RetrieveModelMixin):
+    """用户相关操作的视图集"""
+    # queryset = User.objects.all()
+    # serializer_class = UserSerializer
+    # 设置认证方式
+    permission_classes = [IsAuthenticated, permissions.UserPermission]
+
+    def upload_avatar(self, request, *args, **kwargs):
+        """上传用户头像"""
+        avatar = request.data.get('avatar')
+        # 参数校验
+        if not avatar:
+            return Response({'error': '上传失败，文件不能为空'}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        # if avatar.size < 1024*300:
+        #     return Response({'error': '上传失败，文件大小不能超过300kb'}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        # 保存文件
+        user = self.get_object()
+        ser = self.get_serializer(user, data={'avatar': avatar}, partial=True)
+        ser.is_valid(raise_exception=True)
+        ser.save()
+        return Response({'url': ser.data['avatar']})
+
+
+class FileView(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def get(self, request, name):
+        path = MEDIA_ROOT / name
+        if os.path.isfile(path):
+            return FileResponse(open(path, 'rb'))
+        return Response({'error': '文件不存在'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class AddrView(GenericViewSet,
+               mixins.ListModelMixin,
+               mixins.CreateModelMixin,
+               mixins.DestroyModelMixin,
+               mixins.UpdateModelMixin):
+    """地址管理视图"""
+    # permission_classes = [AllowAny]
+    # authentication_classes = []
+
+    queryset = Addr.objects.all()
+    serializer_class = AddrSerializer
+    permission_classes = [IsAuthenticated, AddrPermission]
+    filterset_fields = ('user',)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        queryset = queryset.filter(user=request.user)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
