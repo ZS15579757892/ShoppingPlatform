@@ -16,8 +16,8 @@ from alibabacloud_tea_util.models import RuntimeOptions
 
 
 class AliyunSMS:
-    access_key_id = 'LTAI5t6QZVXtAFXt7f5HDC6p'
-    access_key_secret = 'nw7gG8SPGii12dcscvJnvLUF8wPMOV'
+    access_key_id = 'access_key_id'
+    access_key_secret = 'access_key_secret'
     endpoint = f'dysmsapi.aliyuncs.com'
     sign_name = '阿里云短信测试'
     template_code = 'SMS_154950909'
