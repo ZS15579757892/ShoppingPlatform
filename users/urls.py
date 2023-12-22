@@ -26,4 +26,10 @@ urlpatterns = [
         'delete': 'destroy',
         'put': 'update'
     })),
+    # 设置默认收货地址
+    path('address/<int:pk>/default', views.AddrView.as_view({
+        'put': 'set_default_addr'
+    })),
+    # 发送短信验证码
+    path('sendsms/', views.SMSView.as_view()),
 ]

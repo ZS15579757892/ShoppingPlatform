@@ -1,3 +1,5 @@
+import random
+
 from django.http import FileResponse
 from django.shortcuts import render
 import os
@@ -11,7 +13,8 @@ from rest_framework.viewsets import GenericViewSet
 from rest_framework.permissions import IsAuthenticated
 
 from ShoppingPlatform.settings import MEDIA_ROOT
-from users.models import User, Addr
+from common.aliyunMessage import AliyunSMS
+from users.models import User, Addr, VerifCode
 from . import permissions
 from .permissions import AddrPermission
 from .serializers import UserSerializer, AddrSerializer
@@ -22,6 +25,7 @@ import re
 # Create your views here.
 class RegisterView(APIView):
     """注册"""
+
     # permission_classes = [AllowAny]
     # authentication_classes = []
 
@@ -132,3 +136,49 @@ class AddrView(GenericViewSet,
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+    def set_default_addr(self, request, *args, **kwargs):
+        """设置默认收货地址"""
+        obj = self.get_object()
+        obj.is_default = True
+        obj.save()
+        # 将用户的其他收货地址设置为非默认
+        queryset = self.get_queryset().filter(user=request.user)
+        for item in queryset:
+            if item != obj:
+                item.is_default = False
+                item.save()
+        return Response({"message": '设置成功'}, status=status.HTTP_200_OK)
+
+
+class SMSView(APIView):
+    """短信验证码"""
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def post(self, request, *args, **kwargs):
+        mobile = request.data.get('phone')
+        # 验证手机号码
+        res = re.match(r'^1[3456789]\d{9}$', mobile)
+        if not res:
+            return Response({'error': '无效的手机号码'}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        # 随机生成短信验证码
+        code = self.get_random_code()
+        # 发送短信验证码
+        result = AliyunSMS().send(mobile=mobile, code=code)
+        if result['code'] == 'OK':
+            # 将短信验证码传入数据库
+            obj = VerifCode.objects.create(mobile=mobile, code=code)
+            result['codeID'] = obj.id
+            return Response(result, status=status.HTTP_200_OK)
+        else:
+            return Response(result, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def get_random_code(self):
+        """随机生成一个六位数验证码"""
+        # code = ''.join([random.choice(range(10)) for i in range(6)])
+        code = ''
+        for i in range(6):
+            n = random.choice(range(10))
+            code += str(n)
+        return code
