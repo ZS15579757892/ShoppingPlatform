@@ -32,4 +32,24 @@ urlpatterns = [
     })),
     # 发送短信验证码
     path('sendsms/', views.SMSView.as_view()),
+    # 绑定手机号
+    path('<int:pk>/mobile/bind', views.UserView.as_view({
+        'put': 'bind_mobile'
+    })),
+    # 解绑手机
+    path('<int:pk>/mobile/unbind', views.UserView.as_view({
+        'put': 'unbind_mobile'
+    })),
+    # 更改用户昵称
+    path('<int:pk>/name/', views.UserView.as_view({
+        'put': 'modify_name'
+    })),
+    # 修改邮箱
+    path('<int:pk>/email/', views.UserView.as_view({
+        'put': 'modify_email'
+    })),
+    # 修改密码
+    path('<int:pk>/password', views.UserView.as_view({
+        'put': 'modify_password'
+    })),
 ]

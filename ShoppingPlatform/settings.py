@@ -153,6 +153,10 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (
             'django_filters.rest_framework.DjangoFilterBackend',
     ),
+    # 配置限流
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '1/minute'
+    }
 }
 
 
