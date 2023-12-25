@@ -23,8 +23,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # 用户模块
     path('api/users/', include('users.urls')),
-    # 商品模块接口
+    # 商品模块
     path('api/goods/', include('goods.urls')),
     # 获取文件视图
-    re_path(r'file/image/(.+?)/', FileView.as_view())
+    re_path(r'file/image/(.+?)/', FileView.as_view()),
+    # 购物车模块
+    path('api/cart/', include('cart.urls'))
 ]
