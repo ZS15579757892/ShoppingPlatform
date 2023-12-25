@@ -21,7 +21,10 @@ from users.views import FileView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    # 用户模块
     path('api/users/', include('users.urls')),
+    # 商品模块接口
+    path('api/goods/', include('goods.urls')),
     # 获取文件视图
     re_path(r'file/image/(.+?)/', FileView.as_view())
 ]

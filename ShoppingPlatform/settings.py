@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework_simplejwt',
     'django_filters',
+    'ckeditor'
 ]
 
 MIDDLEWARE = [
@@ -149,9 +150,10 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BaseAuthentication',
     ),
-    # 配置DRF过滤器
+    # 配置DRF过滤器和排序器
     'DEFAULT_FILTER_BACKENDS': (
-            'django_filters.rest_framework.DjangoFilterBackend',
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.OrderingFilter'
     ),
     # 配置限流
     'DEFAULT_THROTTLE_RATES': {
