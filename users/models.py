@@ -32,9 +32,9 @@ class Addr(models.Model):
 
 class Area(models.Model):
     """省市县区域表"""
-    pid = models.IntegerField(verbose_name='上级id')
+    pid = models.IntegerField(verbose_name='上级id', default=True)
     name = models.CharField(verbose_name='地区名', max_length=20)
-    level = models.CharField(verbose_name='区域等级', max_length=20)
+    level = models.CharField(verbose_name='区域等级', max_length=20, null=True)
 
     class Meta:
         db_table = 'area'
