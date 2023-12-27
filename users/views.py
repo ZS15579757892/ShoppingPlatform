@@ -266,8 +266,8 @@ class AddrView(GenericViewSet,
 
 class SMSView(APIView):
     """短信验证码"""
-    permission_classes = [AllowAny]
-    authentication_classes = []
+    # permission_classes = [AllowAny]
+    # authentication_classes = []
     throttle_classes = (AnonRateThrottle,)
 
     def post(self, request, *args, **kwargs):

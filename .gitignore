@@ -6,6 +6,10 @@ __pycache__/
 # C extensions
 *.so
 
+# 忽略 admin.txt 文件
+/admin.txt
+
+
 # Distribution / packaging
 .Python
 build/

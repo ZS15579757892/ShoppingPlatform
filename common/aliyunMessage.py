@@ -14,10 +14,18 @@ from alibabacloud_tea_openapi.models import Config
 from alibabacloud_dysmsapi20170525.models import SendSmsRequest
 from alibabacloud_tea_util.models import RuntimeOptions
 
+with open('admin.txt', 'r') as file:
+    lines = file.readlines()
+    for line in lines:
+        if "key_id" in line:
+            key_id = line.split('=')[1].replace('\n', '')
+        if "key_secret" in line:
+            key_secret = line.split('=')[1]
+
 
 class AliyunSMS:
-    access_key_id = 'LTAI5t6QZVXtAFXt7f5HDC6p'
-    access_key_secret = 'nw7gG8SPGii12dcscvJnvLUF8wPMOV'
+    access_key_id = key_id
+    access_key_secret = key_secret
     endpoint = f'dysmsapi.aliyuncs.com'
     sign_name = '阿里云短信测试'
     template_code = 'SMS_154950909'
@@ -55,7 +63,6 @@ class AliyunSMS:
 
 if __name__ == '__main__':
     AliyunSMS().send(mobile='15579757892', code='12123')
-
 
 # class Sample:
 #

@@ -79,6 +79,4 @@ class Collect(models.Model):
         verbose_name = '收藏商品'
         verbose_name_plural = verbose_name
 
-    def __str__(self):
-        return self.goods
 
